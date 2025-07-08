@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { GraduationCap } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,10 +23,24 @@ const Auth = () => {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    const { error } = await signIn(email, password);
-    
-    if (!error) {
-      navigate('/dashboard');
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        toast({
+          title: "Error de inicio de sesión",
+          description: error.message || "No se pudo iniciar sesión",
+          variant: "destructive"
+        });
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Ocurrió un error inesperado",
+        variant: "destructive"
+      });
     }
     
     setIsLoading(false);
@@ -40,7 +55,28 @@ const Auth = () => {
     const password = formData.get('password') as string;
     const fullName = formData.get('fullName') as string;
 
-    const { error } = await signUp(email, password, fullName);
+    try {
+      const { error } = await signUp(email, password, fullName);
+      
+      if (error) {
+        toast({
+          title: "Error de registro",
+          description: error.message || "No se pudo crear la cuenta",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "¡Cuenta creada!",
+          description: "Revisa tu email para confirmar tu cuenta",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Ocurrió un error inesperado",
+        variant: "destructive"
+      });
+    }
     
     setIsLoading(false);
   };

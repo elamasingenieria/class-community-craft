@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, createContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
+import React from 'react';
 
 export interface AuthUser {
   id: string;
@@ -35,8 +37,7 @@ export const useAuth = () => {
       password,
     });
     
-    if (error) throw error;
-    return data;
+    return { data, error };
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
@@ -50,8 +51,7 @@ export const useAuth = () => {
       },
     });
     
-    if (error) throw error;
-    return data;
+    return { data, error };
   };
 
   const signOut = async () => {
@@ -80,29 +80,33 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-export const AuthContext = React.createContext<{
+export const AuthContext = createContext<{
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{
-    session: Session | null;
-    user: User | null;
-  } | void>;
+    data: {
+      session: Session | null;
+      user: User | null;
+    };
+    error: any;
+  }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{
-    session: Session | null;
-    user: User | null;
-  } | void>;
+    data: {
+      session: Session | null;
+      user: User | null;
+    };
+    error: any;
+  }>;
   signOut: () => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
 }>({
   user: null,
   loading: true,
-  signIn: async () => {},
-  signUp: async () => {},
+  signIn: async () => ({ data: { session: null, user: null }, error: null }),
+  signUp: async () => ({ data: { session: null, user: null }, error: null }),
   signOut: async () => {},
   updatePassword: async () => {},
 });
-
-import React, { Session } from 'react';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const auth = useAuth();
