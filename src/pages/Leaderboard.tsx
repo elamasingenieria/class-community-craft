@@ -14,8 +14,8 @@ interface LeaderboardEntry {
   email: string | null;
   points: number;
   role: string;
-  forum_posts: { id: string }[];
-  user_progress: { id: string }[];
+  post_count: number;
+  progress_count: number;
 }
 
 const Leaderboard = () => {
@@ -28,19 +28,54 @@ const Leaderboard = () => {
 
   const fetchLeaderboard = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          forum_posts (id),
-          user_progress (id)
-        `)
+        .select('*')
         .order('points', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
 
-      setLeaderboard(data || []);
+      if (profiles) {
+        // Get post counts
+        const { data: posts, error: postsError } = await supabase
+          .from('forum_posts')
+          .select('user_id');
+
+        if (postsError) throw postsError;
+
+        // Get progress counts
+        const { data: progress, error: progressError } = await supabase
+          .from('user_progress')
+          .select('user_id');
+
+        if (progressError) throw progressError;
+
+        // Count posts per user
+        const postCounts = posts?.reduce((acc, post) => {
+          acc[post.user_id] = (acc[post.user_id] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>) || {};
+
+        // Count progress per user
+        const progressCounts = progress?.reduce((acc, prog) => {
+          acc[prog.user_id] = (acc[prog.user_id] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>) || {};
+
+        // Combine data
+        const enrichedLeaderboard: LeaderboardEntry[] = profiles.map(profile => ({
+          id: profile.id,
+          full_name: profile.full_name,
+          email: profile.email,
+          points: profile.points || 0,
+          role: profile.role || 'student',
+          post_count: postCounts[profile.id] || 0,
+          progress_count: progressCounts[profile.id] || 0
+        }));
+
+        setLeaderboard(enrichedLeaderboard);
+      }
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
       toast({
@@ -220,8 +255,8 @@ const Leaderboard = () => {
                             {entry.full_name || 'Usuario Anónimo'}
                           </h3>
                           <div className="flex items-center gap-4 text-sm text-gray-600">
-                            <span>{entry.forum_posts?.length || 0} publicaciones</span>
-                            <span>{entry.user_progress?.length || 0} lecciones completadas</span>
+                            <span>{entry.post_count} publicaciones</span>
+                            <span>{entry.progress_count} lecciones completadas</span>
                           </div>
                         </div>
                       </div>

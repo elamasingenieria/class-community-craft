@@ -19,11 +19,10 @@ interface ForumPost {
   content: string;
   category: string;
   created_at: string;
-  profiles: {
-    full_name: string | null;
-    points: number;
-  };
-  forum_comments: { id: string }[];
+  user_id: string;
+  author_name: string | null;
+  author_points: number;
+  comment_count: number;
 }
 
 const Dashboard = () => {
@@ -43,17 +42,47 @@ const Dashboard = () => {
 
   const fetchPosts = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: postsData, error: postsError } = await supabase
         .from('forum_posts')
-        .select(`
-          *,
-          profiles (full_name, points),
-          forum_comments (id)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setPosts(data || []);
+      if (postsError) throw postsError;
+
+      if (postsData) {
+        // Get user profiles and comment counts separately
+        const userIds = [...new Set(postsData.map(post => post.user_id))];
+        
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, points')
+          .in('id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        const { data: comments, error: commentsError } = await supabase
+          .from('forum_comments')
+          .select('post_id');
+
+        if (commentsError) throw commentsError;
+
+        // Create profiles map and comment counts
+        const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+        const commentCounts = comments?.reduce((acc, comment) => {
+          acc[comment.post_id] = (acc[comment.post_id] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>) || {};
+
+        // Combine data
+        const enrichedPosts: ForumPost[] = postsData.map(post => ({
+          ...post,
+          author_name: profilesMap.get(post.user_id)?.full_name || null,
+          author_points: profilesMap.get(post.user_id)?.points || 0,
+          comment_count: commentCounts[post.id] || 0
+        }));
+
+        setPosts(enrichedPosts);
+      }
     } catch (error) {
       console.error('Error fetching posts:', error);
       toast({
@@ -229,12 +258,12 @@ const Dashboard = () => {
                     <div className="flex items-center space-x-3">
                       <Avatar>
                         <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                          {post.profiles?.full_name?.charAt(0) || 'U'}
+                          {post.author_name?.charAt(0) || 'U'}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {post.profiles?.full_name || 'Usuario'}
+                          {post.author_name || 'Usuario'}
                         </p>
                         <p className="text-sm text-gray-500">
                           {new Date(post.created_at).toLocaleDateString('es-ES', {
@@ -260,11 +289,11 @@ const Dashboard = () => {
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <MessageSquare className="h-4 w-4" />
-                      {post.forum_comments?.length || 0} comentarios
+                      {post.comment_count} comentarios
                     </span>
                     <span className="flex items-center gap-1">
                       <Trophy className="h-4 w-4" />
-                      {post.profiles?.points || 0} puntos
+                      {post.author_points} puntos
                     </span>
                   </div>
                 </CardContent>
