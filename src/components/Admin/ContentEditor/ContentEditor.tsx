@@ -289,7 +289,7 @@ export const ContentEditor = () => {
   }
 
   return (
-    <div className="h-[600px] w-full border rounded-lg bg-gray-50">
+    <div className="h-[600px] w-full border rounded-lg bg-background">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -302,7 +302,7 @@ export const ContentEditor = () => {
         <Background />
         <Controls />
         <MiniMap />
-        <Panel position="top-right" className="bg-white p-2 rounded-lg shadow-lg">
+        <Panel position="top-right" className="bg-card p-2 rounded-lg shadow-lg border">
           <div className="flex gap-2">
             <Button
               size="sm"

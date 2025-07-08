@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -42,9 +43,9 @@ export const Sidebar = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'instructor': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-blue-100 text-blue-800';
+      case 'admin': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'instructor': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      default: return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
     }
   };
 
@@ -59,7 +60,7 @@ export const Sidebar = () => {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden"
+        className="fixed top-4 left-4 z-50 md:hidden bg-background text-foreground"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -67,12 +68,12 @@ export const Sidebar = () => {
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out md:translate-x-0",
+        "fixed inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-sidebar-border transform transition-transform duration-300 ease-in-out md:translate-x-0",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center px-6 py-4 border-b border-sidebar-border">
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
@@ -83,19 +84,19 @@ export const Sidebar = () => {
 
           {/* User Profile Section */}
           {profile && !loading && (
-            <div className="px-4 py-3 border-b border-gray-200">
+            <div className="px-4 py-3 border-b border-sidebar-border">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">
                     {profile.full_name || 'Usuario'}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">{profile.email}</p>
+                  <p className="text-xs text-sidebar-foreground/70 truncate">{profile.email}</p>
                 </div>
                 <Badge className={getRoleColor(profile.role)}>
                   {getRoleLabel(profile.role)}
                 </Badge>
               </div>
-              <div className="mt-2 flex items-center text-xs text-gray-600">
+              <div className="mt-2 flex items-center text-xs text-sidebar-foreground/70">
                 <Trophy className="h-3 w-3 mr-1" />
                 {profile.points} puntos
               </div>
@@ -114,13 +115,13 @@ export const Sidebar = () => {
                   className={cn(
                     "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 border border-blue-200"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground border border-sidebar-ring/20"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50"
                   )}
                 >
                   <item.icon className={cn(
                     "mr-3 h-5 w-5",
-                    isActive ? "text-blue-600" : "text-gray-500"
+                    isActive ? "text-sidebar-primary" : "text-sidebar-foreground/70"
                   )} />
                   {item.name}
                 </Link>
@@ -129,13 +130,13 @@ export const Sidebar = () => {
           </nav>
 
           {/* Settings and Logout */}
-          <div className="px-4 py-4 border-t border-gray-200 space-y-2">
+          <div className="px-4 py-4 border-t border-sidebar-border space-y-2">
             <div className="flex items-center justify-between">
               <UserSettings />
               <Button
                 variant="ghost"
                 onClick={signOut}
-                className="text-gray-700 hover:text-red-600 hover:bg-red-50 flex items-center gap-2"
+                className="text-sidebar-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 flex items-center gap-2"
               >
                 <LogOut className="h-4 w-4" />
                 Cerrar Sesión

@@ -19,39 +19,41 @@ interface ModuleNodeProps {
 
 const ModuleNode = memo(({ data }: ModuleNodeProps) => {
   return (
-    <Card className="w-64 shadow-lg border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100">
+    <Card className="w-64 shadow-lg border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 dark:border-blue-800 dark:from-blue-950 dark:to-blue-900">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-blue-600" />
-            <CardTitle className="text-sm font-semibold text-blue-800">
+            <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <CardTitle className="text-sm font-semibold text-blue-800 dark:text-blue-200">
               Módulo
             </CardTitle>
           </div>
           <div className="flex gap-1">
             <button
               onClick={() => data.onEdit(data.id)}
-              className="p-1 hover:bg-blue-200 rounded"
+              className="p-1 hover:bg-blue-200 dark:hover:bg-blue-800 rounded transition-colors"
+              title="Editar módulo"
             >
-              <Settings className="h-3 w-3 text-blue-600" />
+              <Settings className="h-3 w-3 text-blue-600 dark:text-blue-400" />
             </button>
             <button
               onClick={() => data.onAddTopic(data.id)}
-              className="p-1 hover:bg-blue-200 rounded"
+              className="p-1 hover:bg-blue-200 dark:hover:bg-blue-800 rounded transition-colors"
+              title="Agregar tema"
             >
-              <Plus className="h-3 w-3 text-blue-600" />
+              <Plus className="h-3 w-3 text-blue-600 dark:text-blue-400" />
             </button>
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <h3 className="font-medium text-sm mb-2 text-gray-800">{data.title}</h3>
-        <p className="text-xs text-gray-600 mb-3 line-clamp-2">{data.description}</p>
+        <h3 className="font-medium text-sm mb-2 text-gray-800 dark:text-gray-200">{data.title}</h3>
+        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{data.description}</p>
         <div className="flex items-center justify-between">
           <Badge variant={data.is_published ? "default" : "secondary"} className="text-xs">
             {data.is_published ? "Publicado" : "Borrador"}
           </Badge>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
             {data.topicsCount} tema{data.topicsCount !== 1 ? 's' : ''}
           </span>
         </div>
