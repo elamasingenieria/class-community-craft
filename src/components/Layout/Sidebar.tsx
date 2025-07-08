@@ -13,21 +13,45 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useRole } from '@/hooks/useRole';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 const navigation = [
-  { name: 'Foro', href: '/dashboard', icon: MessageSquare },
-  { name: 'Curso', href: '/dashboard/classroom', icon: BookOpen },
-  { name: 'Miembros', href: '/dashboard/members', icon: Users },
-  { name: 'Clasificación', href: '/dashboard/leaderboard', icon: Trophy },
-  { name: 'Administración', href: '/dashboard/admin', icon: Settings },
+  { name: 'Foro', href: '/dashboard', icon: MessageSquare, roles: ['admin', 'instructor', 'student'] },
+  { name: 'Curso', href: '/dashboard/classroom', icon: BookOpen, roles: ['admin', 'instructor', 'student'] },
+  { name: 'Miembros', href: '/dashboard/members', icon: Users, roles: ['admin', 'instructor', 'student'] },
+  { name: 'Clasificación', href: '/dashboard/leaderboard', icon: Trophy, roles: ['admin', 'instructor', 'student'] },
+  { name: 'Administración', href: '/dashboard/admin', icon: Settings, roles: ['admin', 'instructor'] },
 ];
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { signOut } = useAuth();
+  const { profile, loading } = useRole();
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'admin': return 'Admin';
+      case 'instructor': return 'Instructor';
+      default: return 'Estudiante';
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-800';
+      case 'instructor': return 'bg-purple-100 text-purple-800';
+      default: return 'bg-blue-100 text-blue-800';
+    }
+  };
+
+  // Filter navigation items based on user role
+  const filteredNavigation = navigation.filter(item => 
+    !profile || item.roles.includes(profile.role)
+  );
 
   return (
     <>
@@ -57,9 +81,30 @@ export const Sidebar = () => {
             </span>
           </div>
 
+          {/* User Profile Section */}
+          {profile && !loading && (
+            <div className="px-4 py-3 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {profile.full_name || 'Usuario'}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{profile.email}</p>
+                </div>
+                <Badge className={getRoleColor(profile.role)}>
+                  {getRoleLabel(profile.role)}
+                </Badge>
+              </div>
+              <div className="mt-2 flex items-center text-xs text-gray-600">
+                <Trophy className="h-3 w-3 mr-1" />
+                {profile.points} puntos
+              </div>
+            </div>
+          )}
+
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
-            {navigation.map((item) => {
+            {filteredNavigation.map((item) => {
               const isActive = location.pathname === item.href;
               return (
                 <Link

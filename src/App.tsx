@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/Layout/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -16,7 +17,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRouteWrapper = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
   if (loading) {
@@ -66,29 +67,31 @@ const AppRoutes = () => {
         </PublicRoute>
       } />
       <Route path="/dashboard" element={
-        <ProtectedRoute>
+        <ProtectedRouteWrapper>
           <Dashboard />
-        </ProtectedRoute>
+        </ProtectedRouteWrapper>
       } />
       <Route path="/dashboard/classroom" element={
-        <ProtectedRoute>
+        <ProtectedRouteWrapper>
           <Classroom />
-        </ProtectedRoute>
+        </ProtectedRouteWrapper>
       } />
       <Route path="/dashboard/members" element={
-        <ProtectedRoute>
+        <ProtectedRouteWrapper>
           <Members />
-        </ProtectedRoute>
+        </ProtectedRouteWrapper>
       } />
       <Route path="/dashboard/leaderboard" element={
-        <ProtectedRoute>
+        <ProtectedRouteWrapper>
           <Leaderboard />
-        </ProtectedRoute>
+        </ProtectedRouteWrapper>
       } />
       <Route path="/dashboard/admin" element={
-        <ProtectedRoute>
-          <Admin />
-        </ProtectedRoute>
+        <ProtectedRouteWrapper>
+          <ProtectedRoute allowedRoles={['admin', 'instructor']}>
+            <Admin />
+          </ProtectedRoute>
+        </ProtectedRouteWrapper>
       } />
       <Route path="*" element={<NotFound />} />
     </Routes>
