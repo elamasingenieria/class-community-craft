@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -16,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useRole } from '@/hooks/useRole';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { UserSettings } from './UserSettings';
 import { cn } from '@/lib/utils';
 
 const navigation = [
@@ -128,16 +128,19 @@ export const Sidebar = () => {
             })}
           </nav>
 
-          {/* Logout */}
-          <div className="px-4 py-4 border-t border-gray-200">
-            <Button
-              variant="ghost"
-              onClick={signOut}
-              className="w-full justify-start text-gray-700 hover:text-red-600 hover:bg-red-50"
-            >
-              <LogOut className="mr-3 h-5 w-5" />
-              Cerrar Sesión
-            </Button>
+          {/* Settings and Logout */}
+          <div className="px-4 py-4 border-t border-gray-200 space-y-2">
+            <div className="flex items-center justify-between">
+              <UserSettings />
+              <Button
+                variant="ghost"
+                onClick={signOut}
+                className="text-gray-700 hover:text-red-600 hover:bg-red-50 flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Cerrar Sesión
+              </Button>
+            </div>
           </div>
         </div>
       </div>

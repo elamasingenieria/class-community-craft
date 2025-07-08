@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Settings, Plus, Edit, Trash2, BookOpen, Users, Shield } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { ContentEditor } from '@/components/Admin/ContentEditor/ContentEditor';
 
 interface Module {
   id: string;
@@ -30,6 +30,7 @@ interface Topic {
   description: string;
   order_index: number;
   is_published: boolean;
+  module_id: string;
   lessons: Lesson[];
 }
 
@@ -40,6 +41,7 @@ interface Lesson {
   youtube_url: string;
   order_index: number;
   is_published: boolean;
+  topic_id: string;
 }
 
 interface Profile {
@@ -309,7 +311,7 @@ const Admin = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
             <Settings className="h-8 w-8 text-blue-600" />
@@ -318,8 +320,12 @@ const Admin = () => {
           <p className="text-gray-600">Gestiona el contenido del curso y los usuarios de la plataforma</p>
         </div>
 
-        <Tabs defaultValue="content" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="content-editor" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="content-editor" className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              Editor Visual
+            </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Gestión de Contenido
@@ -329,6 +335,20 @@ const Admin = () => {
               Gestión de Usuarios
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="content-editor" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Editor Visual de Contenido</CardTitle>
+                <CardDescription>
+                  Crea y edita módulos, temas y lecciones usando el editor visual tipo mapa mental
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ContentEditor />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="content" className="space-y-6">
             {/* Create Module */}
