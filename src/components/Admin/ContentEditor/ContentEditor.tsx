@@ -34,6 +34,7 @@ interface Module {
   description: string;
   order_index: number;
   is_published: boolean;
+  cover_image_url?: string;
   topics: Topic[];
 }
 
@@ -118,6 +119,7 @@ export const ContentEditor = () => {
           title: module.title,
           description: module.description || '',
           is_published: module.is_published || false,
+          cover_image_url: module.cover_image_url,
           topicsCount: module.topics?.length || 0,
           onEdit: (id: string) => handleEdit('module', id),
           onAddTopic: (moduleId: string) => handleAdd('topic', moduleId),

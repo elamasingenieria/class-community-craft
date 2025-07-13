@@ -11,6 +11,7 @@ interface ModuleNodeProps {
     title: string;
     description: string;
     is_published: boolean;
+    cover_image_url?: string;
     topicsCount: number;
     onEdit: (id: string) => void;
     onAddTopic: (moduleId: string) => void;

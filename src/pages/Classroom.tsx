@@ -10,12 +10,14 @@ import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PlayCircle, CheckCircle, BookOpen, Clock, Trophy } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { YouTubeEmbed } from '@/components/Video/YouTubeEmbed';
 
 interface Module {
   id: string;
   title: string;
   description: string;
   order_index: number;
+  cover_image_url?: string;
   topics: Topic[];
 }
 
@@ -233,17 +235,41 @@ const Classroom = () => {
           <div className="space-y-6">
             {modules.map((module, moduleIndex) => (
               <Card key={module.id} className="overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100">
-                  <CardTitle className="flex items-center gap-2">
-                    <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                      {moduleIndex + 1}
+                {module.cover_image_url && (
+                  <div className="relative h-48 overflow-hidden">
+                    <img 
+                      src={module.cover_image_url} 
+                      alt={module.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end p-6">
+                      <div className="text-white">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="bg-white bg-opacity-20 backdrop-blur-sm border border-white border-opacity-30 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                            {moduleIndex + 1}
+                          </div>
+                          <h2 className="text-2xl font-bold">{module.title}</h2>
+                        </div>
+                        {module.description && (
+                          <p className="text-white text-opacity-90">{module.description}</p>
+                        )}
+                      </div>
                     </div>
-                    {module.title}
-                  </CardTitle>
-                  {module.description && (
-                    <CardDescription>{module.description}</CardDescription>
-                  )}
-                </CardHeader>
+                  </div>
+                )}
+                {!module.cover_image_url && (
+                  <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                        {moduleIndex + 1}
+                      </div>
+                      {module.title}
+                    </CardTitle>
+                    {module.description && (
+                      <CardDescription>{module.description}</CardDescription>
+                    )}
+                  </CardHeader>
+                )}
                 <CardContent className="p-0">
                   <Accordion type="single" collapsible className="w-full">
                     {module.topics.map((topic, topicIndex) => (
@@ -291,48 +317,36 @@ const Classroom = () => {
                                     </div>
                                     <div className="flex-1">
                                       <h4 className="font-medium text-gray-900">{lesson.title}</h4>
-                                      {lesson.description && (
-                                        <p className="text-sm text-gray-600 mt-1">{lesson.description}</p>
-                                      )}
-                                      {videoId && (
-                                        <div className="mt-2">
-                                          <img 
-                                            src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
-                                            alt={lesson.title}
-                                            className="w-24 h-16 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
-                                            onClick={() => lesson.youtube_url && openYouTubeVideo(lesson.youtube_url)}
-                                          />
-                                        </div>
-                                      )}
+                                       {lesson.description && (
+                                         <p className="text-sm text-gray-600 mt-1">{lesson.description}</p>
+                                       )}
+                                       {videoId && (
+                                         <div className="mt-3">
+                                           <YouTubeEmbed 
+                                             videoId={videoId} 
+                                             title={lesson.title}
+                                             className="max-w-md"
+                                           />
+                                         </div>
+                                       )}
                                     </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    {lesson.youtube_url && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => openYouTubeVideo(lesson.youtube_url)}
-                                        className="flex items-center gap-1"
-                                      >
-                                        <PlayCircle className="h-4 w-4" />
-                                        Ver Video
-                                      </Button>
-                                    )}
-                                    {!isCompleted && (
-                                      <Button
-                                        onClick={() => markLessonComplete(lesson.id)}
-                                        size="sm"
-                                        className="bg-green-600 hover:bg-green-700"
-                                      >
-                                        Marcar Completo
-                                      </Button>
-                                    )}
-                                    {isCompleted && (
-                                      <Badge className="bg-green-500 text-white">
-                                        Completado
-                                      </Badge>
-                                    )}
-                                  </div>
+                                   <div className="flex items-center gap-2">
+                                     {!isCompleted && (
+                                       <Button
+                                         onClick={() => markLessonComplete(lesson.id)}
+                                         size="sm"
+                                         className="bg-green-600 hover:bg-green-700"
+                                       >
+                                         Marcar Completo
+                                       </Button>
+                                     )}
+                                     {isCompleted && (
+                                       <Badge className="bg-green-500 text-white">
+                                         Completado
+                                       </Badge>
+                                     )}
+                                   </div>
                                 </div>
                               );
                             })}

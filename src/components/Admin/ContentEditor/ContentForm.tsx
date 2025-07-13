@@ -6,6 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 interface ContentFormProps {
   type: 'module' | 'topic' | 'lesson';
@@ -16,6 +18,7 @@ interface ContentFormProps {
 
 export const ContentForm = ({ type, data, onSave, onCancel }: ContentFormProps) => {
   const [formData, setFormData] = useState(data);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     setFormData(data);
@@ -24,6 +27,67 @@ export const ContentForm = ({ type, data, onSave, onCancel }: ContentFormProps) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "La imagen debe ser menor a 5MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Solo se permiten archivos de imagen",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `module-covers/${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('module-covers')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('module-covers')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, cover_image_url: publicUrl });
+      
+      toast({
+        title: "Éxito",
+        description: "Imagen subida correctamente"
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo subir la imagen",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const getTitle = () => {
@@ -77,6 +141,33 @@ export const ContentForm = ({ type, data, onSave, onCancel }: ContentFormProps) 
                 onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
                 placeholder="https://youtube.com/watch?v=..."
               />
+            </div>
+          )}
+
+          {type === 'module' && (
+            <div>
+              <Label htmlFor="cover_image">Imagen de Portada</Label>
+              <div className="space-y-2">
+                <Input
+                  id="cover_image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploading}
+                />
+                {formData.cover_image_url && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.cover_image_url} 
+                      alt="Vista previa" 
+                      className="w-32 h-20 object-cover rounded border"
+                    />
+                  </div>
+                )}
+                {uploading && (
+                  <p className="text-sm text-muted-foreground">Subiendo imagen...</p>
+                )}
+              </div>
             </div>
           )}
 
