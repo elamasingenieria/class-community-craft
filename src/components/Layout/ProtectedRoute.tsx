@@ -31,7 +31,7 @@ export const ProtectedRoute = ({
         <CardContent className="text-center py-8">
           <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Acceso Denegado</h3>
-          <p className="text-gray-600">No se pudo verificar tu perfil de usuario.</p>
+          <p className="text-muted-foreground">No se pudo verificar tu perfil de usuario.</p>
         </CardContent>
       </Card>
     );
@@ -44,7 +44,7 @@ export const ProtectedRoute = ({
         <CardContent className="text-center py-8">
           <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Acceso Restringido</h3>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Esta sección requiere permisos de {requiredRole === 'admin' ? 'administrador' : 'instructor'}.
           </p>
         </CardContent>
@@ -59,7 +59,7 @@ export const ProtectedRoute = ({
         <CardContent className="text-center py-8">
           <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Acceso Restringido</h3>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             No tienes permisos para acceder a esta sección.
           </p>
         </CardContent>

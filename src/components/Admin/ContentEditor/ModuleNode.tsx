@@ -48,13 +48,13 @@ const ModuleNode = memo(({ data }: ModuleNodeProps) => {
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <h3 className="font-medium text-sm mb-2 text-gray-800 dark:text-gray-200">{data.title}</h3>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{data.description}</p>
+        <h3 className="font-medium text-sm mb-2 text-foreground">{data.title}</h3>
+        <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{data.description}</p>
         <div className="flex items-center justify-between">
           <Badge variant={data.is_published ? "default" : "secondary"} className="text-xs">
             {data.is_published ? "Publicado" : "Borrador"}
           </Badge>
-          <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-muted-foreground">
             {data.topicsCount} tema{data.topicsCount !== 1 ? 's' : ''}
           </span>
         </div>

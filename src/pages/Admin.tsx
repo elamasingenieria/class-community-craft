@@ -314,11 +314,11 @@ const Admin = () => {
     <DashboardLayout>
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-foreground mb-4 flex items-center gap-3">
             <Settings className="h-8 w-8 text-blue-600" />
             Panel de Administración
           </h1>
-          <p className="text-gray-600">Gestiona el contenido del curso y los usuarios de la plataforma</p>
+          <p className="text-muted-foreground">Gestiona el contenido del curso y los usuarios de la plataforma</p>
         </div>
 
         <Tabs defaultValue="content-editor" className="space-y-6">
@@ -508,7 +508,7 @@ const Admin = () => {
               </CardHeader>
               <CardContent>
                 {modules.length === 0 ? (
-                  <p className="text-gray-600 text-center py-8">No hay módulos creados aún.</p>
+                  <p className="text-muted-foreground text-center py-8">No hay módulos creados aún.</p>
                 ) : (
                   <div className="space-y-4">
                     {modules.map((module) => (
@@ -519,7 +519,7 @@ const Admin = () => {
                             {module.is_published ? "Publicado" : "Borrador"}
                           </Badge>
                         </div>
-                        <p className="text-gray-600 mb-3">{module.description}</p>
+                        <p className="text-muted-foreground mb-3">{module.description}</p>
                         <div className="pl-4 space-y-2">
                           {module.topics.map((topic) => (
                             <div key={topic.id} className="border-l-2 border-gray-200 pl-4">
@@ -532,7 +532,7 @@ const Admin = () => {
                               <div className="pl-4 mt-2 space-y-1">
                                 {topic.lessons.map((lesson) => (
                                   <div key={lesson.id} className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-700">{lesson.title}</span>
+                                    <span className="text-foreground">{lesson.title}</span>
                                     <Badge variant={lesson.is_published ? "default" : "secondary"} className="text-xs">
                                       {lesson.is_published ? "Publicado" : "Borrador"}
                                     </Badge>
@@ -558,15 +558,15 @@ const Admin = () => {
               </CardHeader>
               <CardContent>
                 {profiles.length === 0 ? (
-                  <p className="text-gray-600 text-center py-8">No hay usuarios registrados.</p>
+                  <p className="text-muted-foreground text-center py-8">No hay usuarios registrados.</p>
                 ) : (
                   <div className="space-y-4">
                     {profiles.map((profile) => (
                       <div key={profile.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div>
                           <h3 className="font-semibold">{profile.full_name || 'Usuario sin nombre'}</h3>
-                          <p className="text-sm text-gray-600">{profile.email}</p>
-                          <p className="text-sm text-gray-500">{profile.points} puntos</p>
+                                                  <p className="text-sm text-muted-foreground">{profile.email}</p>
+                        <p className="text-sm text-muted-foreground">{profile.points} puntos</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge className={

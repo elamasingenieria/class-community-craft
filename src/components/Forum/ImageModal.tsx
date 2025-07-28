@@ -97,7 +97,7 @@ export const ImageModal = ({ images, initialIndex = 0, isOpen, onClose }: ImageM
           {/* Image Info */}
           <div className="mt-4 text-white text-center">
             <p className="font-medium">{currentImage.file_name}</p>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-muted-foreground">
               {(currentImage.file_size / 1024 / 1024).toFixed(2)} MB • 
               {currentIndex + 1} de {images.length}
             </p>

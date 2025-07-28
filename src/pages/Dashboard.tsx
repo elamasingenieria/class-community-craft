@@ -261,8 +261,8 @@ const Dashboard = () => {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Foro de la Comunidad</h1>
-            <p className="text-gray-600 mt-2">Comparte tus logros, haz preguntas y conecta con otros estudiantes</p>
+            <h1 className="text-3xl font-bold text-foreground">Foro de la Comunidad</h1>
+            <p className="text-muted-foreground mt-2">Comparte tus logros, haz preguntas y conecta con otros estudiantes</p>
           </div>
           <Button
             onClick={() => setShowCreatePost(!showCreatePost)}
@@ -317,11 +317,11 @@ const Dashboard = () => {
                 {/* Image Upload Section */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">Imágenes (opcional)</span>
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">Imágenes (opcional)</span>
                   </div>
                   
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
+                  <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-blue-400 transition-colors">
                     <input
                       type="file"
                       multiple
@@ -335,11 +335,11 @@ const Dashboard = () => {
                       htmlFor="image-upload"
                       className="flex flex-col items-center justify-center cursor-pointer"
                     >
-                      <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                      <span className="text-sm text-gray-600">
+                                              <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                      <span className="text-sm text-muted-foreground">
                         Haz clic para seleccionar imágenes
                       </span>
-                      <span className="text-xs text-gray-500 mt-1">
+                      <span className="text-xs text-muted-foreground/70 mt-1">
                         PNG, JPG, GIF hasta 10MB cada una
                       </span>
                     </label>
@@ -348,7 +348,7 @@ const Dashboard = () => {
                   {/* Selected Images Preview */}
                   {selectedImages.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-gray-700">
+                      <h4 className="text-sm font-medium text-foreground">
                         Imágenes seleccionadas ({selectedImages.length})
                       </h4>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -366,7 +366,7 @@ const Dashboard = () => {
                             >
                               <X className="h-3 w-3" />
                             </button>
-                            <p className="text-xs text-gray-500 mt-1 truncate">
+                            <p className="text-xs text-muted-foreground mt-1 truncate">
                               {image.name}
                             </p>
                           </div>
@@ -412,9 +412,9 @@ const Dashboard = () => {
           {posts.length === 0 ? (
             <Card className="text-center py-12">
               <CardContent>
-                <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay publicaciones aún</h3>
-                <p className="text-gray-600 mb-4">¡Sé el primero en compartir algo con la comunidad!</p>
+                <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No hay publicaciones aún</h3>
+                <p className="text-muted-foreground mb-4">¡Sé el primero en compartir algo con la comunidad!</p>
                 <Button
                   onClick={() => setShowCreatePost(true)}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
@@ -435,10 +435,10 @@ const Dashboard = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-semibold text-foreground">
                           {post.author_name || 'Usuario'}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           {new Date(post.created_at).toLocaleDateString('es-ES', {
                             year: 'numeric',
                             month: 'long',
@@ -458,7 +458,7 @@ const Dashboard = () => {
                   <CardTitle className="text-xl">{post.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 whitespace-pre-wrap mb-4">{post.content}</p>
+                  <p className="text-foreground whitespace-pre-wrap mb-4">{post.content}</p>
                   
                   {/* Images Display */}
                   {post.images && post.images.length > 0 && (
@@ -481,7 +481,7 @@ const Dashboard = () => {
                     </div>
                   )}
                   
-                  <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <MessageSquare className="h-4 w-4" />
                       {post.comment_count} comentarios

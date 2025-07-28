@@ -18,9 +18,9 @@ const Index = () => {
               <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 A-<span className="italic text-sm">learn</span>
               </div>
-              <div className="text-xs text-gray-500">
-                un producto de AdvantX
-              </div>
+                          <div className="text-xs text-muted-foreground">
+              un producto de AdvantX
+            </div>
             </div>
           </div>
           <Link to="/auth">
@@ -34,13 +34,13 @@ const Index = () => {
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
             Tu plataforma de cursos
             <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               sin mensualidades
             </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Aloja y gestiona tus cursos online sin pagar comisiones mensuales. 
             Una alternativa poderosa a Skool y Kajabi, diseñada para creadores de contenido.
           </p>
@@ -60,10 +60,10 @@ const Index = () => {
       {/* Features Section */}
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Todo lo que necesitas para tu curso online
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Una plataforma completa con todas las herramientas que necesitas para crear, 
             gestionar y hacer crecer tu comunidad educativa.
           </p>
@@ -178,10 +178,10 @@ const Index = () => {
             </div>
             <div>
               <div className="text-2xl font-bold">A-<span className="italic text-sm">learn</span></div>
-              <div className="text-xs text-gray-400">un producto de AdvantX</div>
+              <div className="text-xs text-muted-foreground">un producto de AdvantX</div>
             </div>
           </div>
-          <div className="text-center text-gray-400">
+          <div className="text-center text-muted-foreground">
             <p>&copy; 2024 A-Learn. Todos los derechos reservados.</p>
             <p className="mt-2">Creado con ❤️ para creadores de contenido</p>
           </div>

@@ -40,7 +40,7 @@ export const PostCard = ({ post, comments, onCommentAdded }: PostCardProps) => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      general: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+      general: 'bg-muted text-muted-foreground',
       programming: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
       design: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
       questions: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',

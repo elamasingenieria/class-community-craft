@@ -94,11 +94,11 @@ const Auth = () => {
             <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               A-<span className="italic text-sm">learn</span>
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
               un producto de AdvantX
             </div>
           </div>
-          <p className="text-gray-600 mt-2">
+          <p className="text-muted-foreground mt-2">
             Tu plataforma de cursos sin mensualidades
           </p>
         </div>

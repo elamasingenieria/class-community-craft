@@ -144,17 +144,17 @@ const Leaderboard = () => {
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
-            <Trophy className="h-8 w-8 text-yellow-500" />
-            Tabla de Clasificación
-          </h1>
-          <p className="text-gray-600">Los miembros más activos y destacados de nuestra comunidad</p>
+                  <h1 className="text-3xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
+          <Trophy className="h-8 w-8 text-yellow-500" />
+          Tabla de Clasificación
+        </h1>
+        <p className="text-muted-foreground">Los miembros más activos y destacados de nuestra comunidad</p>
         </div>
 
         {/* Top 3 Podium */}
         {leaderboard.length >= 3 && (
           <div className="mb-12">
-            <h2 className="text-xl font-semibold text-center mb-6 text-gray-800">🏆 Podio de Campeones</h2>
+            <h2 className="text-xl font-semibold text-center mb-6 text-foreground">🏆 Podio de Campeones</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Second Place */}
               <Card className={`${getCardStyle(2)} transform md:translate-y-4`}>
@@ -170,7 +170,7 @@ const Leaderboard = () => {
                   <CardTitle className="text-lg">{leaderboard[1]?.full_name || 'Usuario'}</CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <div className="text-2xl font-bold text-gray-600 mb-2">{leaderboard[1]?.points} pts</div>
+                  <div className="text-2xl font-bold text-muted-foreground mb-2">{leaderboard[1]?.points} pts</div>
                   {getRankBadge(2)}
                 </CardContent>
               </Card>
@@ -225,9 +225,9 @@ const Leaderboard = () => {
           <CardContent>
             {leaderboard.length === 0 ? (
               <div className="text-center py-12">
-                <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Sin datos de clasificación</h3>
-                <p className="text-gray-600">Los puntos aparecerán aquí cuando los miembros participen en actividades.</p>
+                <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">Sin datos de clasificación</h3>
+                <p className="text-muted-foreground">Los puntos aparecerán aquí cuando los miembros participen en actividades.</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -240,7 +240,7 @@ const Leaderboard = () => {
                     >
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center gap-3">
-                          <div className="text-lg font-bold text-gray-600 w-8 text-center">
+                          <div className="text-lg font-bold text-muted-foreground w-8 text-center">
                             {position}
                           </div>
                           {position <= 3 && getRankIcon(position)}
@@ -251,10 +251,10 @@ const Leaderboard = () => {
                           </Avatar>
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-foreground">
                             {entry.full_name || 'Usuario Anónimo'}
                           </h3>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span>{entry.post_count} publicaciones</span>
                             <span>{entry.progress_count} lecciones completadas</span>
                           </div>
@@ -264,7 +264,7 @@ const Leaderboard = () => {
                       <div className="flex items-center space-x-4">
                         <div className="text-right">
                           <div className="text-2xl font-bold text-blue-600">{entry.points}</div>
-                          <div className="text-sm text-gray-600">puntos</div>
+                                                      <div className="text-sm text-muted-foreground">puntos</div>
                         </div>
                         {getRankBadge(position)}
                       </div>

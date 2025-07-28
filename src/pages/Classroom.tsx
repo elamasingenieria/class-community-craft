@@ -193,7 +193,7 @@ const Classroom = () => {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Mi Curso</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-4">Mi Curso</h1>
           
           {/* Progress Overview */}
           <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-l-blue-500">
@@ -226,9 +226,9 @@ const Classroom = () => {
         {modules.length === 0 ? (
           <Card className="text-center py-12">
             <CardContent>
-              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay módulos disponibles</h3>
-              <p className="text-gray-600">Los módulos del curso se mostrarán aquí una vez que estén publicados.</p>
+                              <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No hay módulos disponibles</h3>
+                <p className="text-muted-foreground">Los módulos del curso se mostrarán aquí una vez que estén publicados.</p>
             </CardContent>
           </Card>
         ) : (
@@ -287,7 +287,7 @@ const Classroom = () => {
                         </AccordionTrigger>
                         <AccordionContent className="px-6 pb-4">
                           {topic.description && (
-                            <p className="text-gray-600 mb-4">{topic.description}</p>
+                            <p className="text-muted-foreground mb-4">{topic.description}</p>
                           )}
                           <div className="space-y-3">
                             {topic.lessons.map((lesson, lessonIndex) => {
@@ -316,10 +316,10 @@ const Classroom = () => {
                                       )}
                                     </div>
                                     <div className="flex-1">
-                                      <h4 className="font-medium text-gray-900">{lesson.title}</h4>
-                                       {lesson.description && (
-                                         <p className="text-sm text-gray-600 mt-1">{lesson.description}</p>
-                                       )}
+                                                      <h4 className="font-medium text-foreground">{lesson.title}</h4>
+                {lesson.description && (
+                  <p className="text-sm text-muted-foreground mt-1">{lesson.description}</p>
+                )}
                                        {videoId && (
                                          <div className="mt-3">
                                            <YouTubeEmbed 

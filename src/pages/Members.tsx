@@ -140,15 +140,15 @@ const Members = () => {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Miembros de la Comunidad</h1>
-          <p className="text-gray-600">Conoce a todos los miembros activos de nuestra plataforma</p>
+                  <h1 className="text-3xl font-bold text-foreground mb-4">Miembros de la Comunidad</h1>
+        <p className="text-muted-foreground">Conoce a todos los miembros activos de nuestra plataforma</p>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Total Miembros
               </CardTitle>
@@ -160,7 +160,7 @@ const Members = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-foreground flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" />
                 Publicaciones
               </CardTitle>
@@ -172,7 +172,7 @@ const Members = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-foreground flex items-center gap-2">
                 <BookOpen className="h-4 w-4" />
                 Lecciones Completadas
               </CardTitle>
@@ -184,7 +184,7 @@ const Members = () => {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
+              <CardTitle className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Trophy className="h-4 w-4" />
                 Activos Esta Semana
               </CardTitle>
@@ -204,9 +204,9 @@ const Members = () => {
           <CardContent>
             {members.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay miembros registrados</h3>
-                <p className="text-gray-600">Los miembros aparecerán aquí una vez que se registren.</p>
+                <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No hay miembros registrados</h3>
+                <p className="text-muted-foreground">Los miembros aparecerán aquí una vez que se registren.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -217,7 +217,7 @@ const Members = () => {
                   >
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center gap-3">
-                        <div className="text-sm font-bold text-gray-500 w-8 text-center">
+                        <div className="text-sm font-bold text-muted-foreground w-8 text-center">
                           #{index + 1}
                         </div>
                         <Avatar className="h-12 w-12">
@@ -227,11 +227,11 @@ const Members = () => {
                         </Avatar>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-foreground">
                           {member.full_name || 'Usuario Anónimo'}
                         </h3>
-                        <p className="text-sm text-gray-500">{member.email}</p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                        <p className="text-xs text-muted-foreground/70">
                           Miembro desde {new Date(member.created_at).toLocaleDateString('es-ES', {
                             year: 'numeric',
                             month: 'long'
@@ -245,9 +245,9 @@ const Members = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <Trophy className="h-4 w-4 text-yellow-500" />
                           <span className="font-semibold text-lg">{member.points}</span>
-                          <span className="text-sm text-gray-600">pts</span>
+                          <span className="text-sm text-muted-foreground">pts</span>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                                                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <MessageSquare className="h-3 w-3" />
                             {member.post_count}

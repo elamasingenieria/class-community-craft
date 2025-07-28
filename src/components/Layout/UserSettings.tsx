@@ -66,7 +66,7 @@ export const UserSettings = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-gray-700 hover:text-gray-900">
+        <Button variant="ghost" size="icon" className="text-foreground hover:text-foreground">
           <Settings className="h-5 w-5" />
         </Button>
       </DialogTrigger>
