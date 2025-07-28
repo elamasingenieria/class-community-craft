@@ -90,9 +90,14 @@ const Auth = () => {
               <GraduationCap className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            CoC Platform
-          </h1>
+          <div>
+            <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              A-<span className="italic text-sm">learn</span>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              un producto de AdvantX
+            </div>
+          </div>
           <p className="text-gray-600 mt-2">
             Tu plataforma de cursos sin mensualidades
           </p>

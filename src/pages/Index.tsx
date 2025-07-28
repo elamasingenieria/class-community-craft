@@ -14,9 +14,14 @@ const Index = () => {
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              CoC Platform
-            </span>
+            <div>
+              <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                A-<span className="italic text-sm">learn</span>
+              </div>
+              <div className="text-xs text-gray-500">
+                un producto de AdvantX
+              </div>
+            </div>
           </div>
           <Link to="/auth">
             <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
@@ -153,7 +158,7 @@ const Index = () => {
               ¿Listo para lanzar tu curso?
             </h2>
             <p className="text-xl mb-8 opacity-90">
-              Únete a los creadores que ya han elegido la libertad de CoC Platform
+              Únete a los creadores que ya han elegido la libertad de A-Learn
             </p>
             <Link to="/auth">
               <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
@@ -171,10 +176,13 @@ const Index = () => {
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold">CoC Platform</span>
+            <div>
+              <div className="text-2xl font-bold">A-<span className="italic text-sm">learn</span></div>
+              <div className="text-xs text-gray-400">un producto de AdvantX</div>
+            </div>
           </div>
           <div className="text-center text-gray-400">
-            <p>&copy; 2024 CoC Platform. Todos los derechos reservados.</p>
+            <p>&copy; 2024 A-Learn. Todos los derechos reservados.</p>
             <p className="mt-2">Creado con ❤️ para creadores de contenido</p>
           </div>
         </div>

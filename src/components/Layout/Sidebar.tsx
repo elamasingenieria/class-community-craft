@@ -10,7 +10,7 @@ import {
   Settings,
   LogOut,
   Menu,
-  X
+  Bot
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRole } from '@/hooks/useRole';
@@ -19,11 +19,28 @@ import { Badge } from '@/components/ui/badge';
 import { UserSettings } from './UserSettings';
 import { cn } from '@/lib/utils';
 
+// Custom Layout Icon Component
+const LayoutIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <line x1="8" y1="3" x2="8" y2="21" />
+  </svg>
+);
+
 const navigation = [
   { name: 'Foro', href: '/dashboard', icon: MessageSquare, roles: ['admin', 'instructor', 'student'] },
   { name: 'Curso', href: '/dashboard/classroom', icon: BookOpen, roles: ['admin', 'instructor', 'student'] },
   { name: 'Miembros', href: '/dashboard/members', icon: Users, roles: ['admin', 'instructor', 'student'] },
   { name: 'Clasificación', href: '/dashboard/leaderboard', icon: Trophy, roles: ['admin', 'instructor', 'student'] },
+  { name: 'Tutor Virtual', href: '/dashboard/tutor', icon: Bot, roles: ['admin', 'instructor', 'student'] },
   { name: 'Administración', href: '/dashboard/admin', icon: Settings, roles: ['admin', 'instructor'] },
 ];
 
@@ -67,7 +84,7 @@ export const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
         className="fixed top-4 left-4 z-50 md:hidden bg-background text-foreground"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {isOpen ? <LayoutIcon className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
 
       {/* Sidebar */}
@@ -82,9 +99,14 @@ export const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
               <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-lg">
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
-              <span className="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                CoC Platform
-              </span>
+              <div className="ml-3">
+                <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  A-<span className="italic text-sm">learn</span>
+                </div>
+                <div className="text-xs text-sidebar-foreground/70">
+                  un producto de AdvantX
+                </div>
+              </div>
             </div>
             <Button
               variant="ghost"
@@ -92,7 +114,7 @@ export const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
               className="h-8 w-8"
               onClick={() => setIsOpen(false)}
             >
-              <X className="h-4 w-4" />
+              <LayoutIcon className="h-4 w-4" />
             </Button>
           </div>
 

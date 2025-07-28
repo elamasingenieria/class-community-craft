@@ -14,6 +14,7 @@ import Classroom from "./pages/Classroom";
 import Members from "./pages/Members";
 import Leaderboard from "./pages/Leaderboard";
 import Admin from "./pages/Admin";
+import VirtualTutor from "./pages/VirtualTutor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -92,6 +93,11 @@ const AppRoutes = () => {
           <ProtectedRoute allowedRoles={['admin', 'instructor']}>
             <Admin />
           </ProtectedRoute>
+        </ProtectedRouteWrapper>
+      } />
+      <Route path="/dashboard/tutor" element={
+        <ProtectedRouteWrapper>
+          <VirtualTutor />
         </ProtectedRouteWrapper>
       } />
       <Route path="*" element={<NotFound />} />
