@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Settings, Plus, Edit, Trash2, BookOpen, Users, Shield } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ContentEditor } from '@/components/Admin/ContentEditor/ContentEditor';
+import { WebhookDiagnostics } from '@/components/VirtualTutor/WebhookDiagnostics';
 
 interface Module {
   id: string;
@@ -321,7 +322,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="content-editor" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="content-editor" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Editor Visual
@@ -333,6 +334,10 @@ const Admin = () => {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Gestión de Usuarios
+            </TabsTrigger>
+            <TabsTrigger value="webhooks" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              Diagnóstico Webhooks
             </TabsTrigger>
           </TabsList>
 
@@ -588,6 +593,20 @@ const Admin = () => {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="webhooks" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Diagnóstico de Webhooks</CardTitle>
+                <CardDescription>
+                  Prueba y monitorea el estado de los webhooks del Tutor Virtual
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <WebhookDiagnostics />
               </CardContent>
             </Card>
           </TabsContent>

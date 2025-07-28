@@ -1,4 +1,6 @@
-# Welcome to your Lovable project
+# A-Learn
+
+Plataforma de aprendizaje interactiva para estudiantes y educadores. Un producto de AdvantX.
 
 ## Project info
 

@@ -10,8 +10,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MessageSquare, Heart, Trophy, Plus } from 'lucide-react';
+import { MessageSquare, Heart, Trophy, Plus, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { ImageModal } from '@/components/Forum/ImageModal';
+
+interface ForumPostImage {
+  id: string;
+  file_path: string;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  url: string;
+}
 
 interface ForumPost {
   id: string;
@@ -23,6 +33,7 @@ interface ForumPost {
   author_name: string | null;
   author_points: number;
   comment_count: number;
+  images?: ForumPostImage[];
 }
 
 const Dashboard = () => {
@@ -35,6 +46,11 @@ const Dashboard = () => {
     content: '',
     category: 'general'
   });
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedPostImages, setSelectedPostImages] = useState<ForumPostImage[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     fetchPosts();
@@ -43,7 +59,7 @@ const Dashboard = () => {
   const fetchPosts = async () => {
     try {
       const { data: postsData, error: postsError } = await supabase
-        .from('forum_posts')
+        .from('forum_posts_with_images')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -95,21 +111,97 @@ const Dashboard = () => {
     }
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    
+    if (validFiles.length !== files.length) {
+      toast({
+        title: "Archivos no válidos",
+        description: "Solo se permiten archivos de imagen",
+        variant: "destructive"
+      });
+    }
+    
+    setSelectedImages(prev => [...prev, ...validFiles]);
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const openImageModal = (images: ForumPostImage[], initialIndex: number = 0) => {
+    setSelectedPostImages(images);
+    setSelectedImageIndex(initialIndex);
+    setImageModalOpen(true);
+  };
+
+  const uploadImages = async (postId: string): Promise<string[]> => {
+    if (selectedImages.length === 0) return [];
+
+    const uploadedPaths: string[] = [];
+    
+    for (const image of selectedImages) {
+      const fileExt = image.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('forum-images')
+        .upload(filePath, image);
+
+      if (uploadError) {
+        throw new Error(`Error uploading ${image.name}: ${uploadError.message}`);
+      }
+
+      uploadedPaths.push(filePath);
+    }
+
+    return uploadedPaths;
+  };
+
+  const saveImageRecords = async (postId: string, imagePaths: string[]) => {
+    const imageRecords = imagePaths.map((path, index) => ({
+      post_id: postId,
+      file_path: path,
+      file_name: selectedImages[index].name,
+      file_size: selectedImages[index].size,
+      mime_type: selectedImages[index].type
+    }));
+
+    const { error } = await supabase
+      .from('forum_post_images')
+      .insert(imageRecords);
+
+    if (error) throw error;
+  };
+
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
+    setUploadingImages(true);
+
     try {
-      const { error } = await supabase
+      // Create the post first
+      const { data: postData, error: postError } = await supabase
         .from('forum_posts')
         .insert({
           title: formData.title,
           content: formData.content,
           category: formData.category,
           user_id: user.id
-        });
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (postError) throw postError;
+
+      // Upload images if any
+      if (selectedImages.length > 0) {
+        const uploadedPaths = await uploadImages(postData.id);
+        await saveImageRecords(postData.id, uploadedPaths);
+      }
 
       // Award points for creating a post
       await supabase.rpc('update_user_points', {
@@ -119,10 +211,11 @@ const Dashboard = () => {
 
       toast({
         title: "¡Publicación creada!",
-        description: "Has ganado 10 puntos por participar en el foro."
+        description: `Has ganado 10 puntos por participar en el foro.${selectedImages.length > 0 ? ` Se subieron ${selectedImages.length} imagen(es).` : ''}`
       });
 
       setFormData({ title: '', content: '', category: 'general' });
+      setSelectedImages([]);
       setShowCreatePost(false);
       fetchPosts();
     } catch (error) {
@@ -132,6 +225,8 @@ const Dashboard = () => {
         description: "No se pudo crear la publicación",
         variant: "destructive"
       });
+    } finally {
+      setUploadingImages(false);
     }
   };
 
@@ -218,14 +313,92 @@ const Dashboard = () => {
                     required
                   />
                 </div>
+                
+                {/* Image Upload Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-700">Imágenes (opcional)</span>
+                  </div>
+                  
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 transition-colors">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                      id="image-upload"
+                      disabled={uploadingImages}
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className="flex flex-col items-center justify-center cursor-pointer"
+                    >
+                      <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                      <span className="text-sm text-gray-600">
+                        Haz clic para seleccionar imágenes
+                      </span>
+                      <span className="text-xs text-gray-500 mt-1">
+                        PNG, JPG, GIF hasta 10MB cada una
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Selected Images Preview */}
+                  {selectedImages.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium text-gray-700">
+                        Imágenes seleccionadas ({selectedImages.length})
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {selectedImages.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={URL.createObjectURL(image)}
+                              alt={image.name}
+                              className="w-full h-24 object-cover rounded-lg border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                            <p className="text-xs text-gray-500 mt-1 truncate">
+                              {image.name}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex gap-2">
-                  <Button type="submit" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                    Publicar
+                  <Button 
+                    type="submit" 
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    disabled={uploadingImages}
+                  >
+                    {uploadingImages ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Subiendo...
+                      </>
+                    ) : (
+                      'Publicar'
+                    )}
                   </Button>
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={() => setShowCreatePost(false)}
+                    onClick={() => {
+                      setShowCreatePost(false);
+                      setSelectedImages([]);
+                    }}
+                    disabled={uploadingImages}
                   >
                     Cancelar
                   </Button>
@@ -286,6 +459,28 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-700 whitespace-pre-wrap mb-4">{post.content}</p>
+                  
+                  {/* Images Display */}
+                  {post.images && post.images.length > 0 && (
+                    <div className="mb-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {post.images.map((image, index) => (
+                          <div key={image.id} className="relative group">
+                            <img
+                              src={image.url}
+                              alt={image.file_name}
+                              className="w-full h-32 object-cover rounded-lg border cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => openImageModal(post.images!, index)}
+                            />
+                            <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                              {image.file_name}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <MessageSquare className="h-4 w-4" />
@@ -295,6 +490,12 @@ const Dashboard = () => {
                       <Trophy className="h-4 w-4" />
                       {post.author_points} puntos
                     </span>
+                    {post.images && post.images.length > 0 && (
+                      <span className="flex items-center gap-1">
+                        <ImageIcon className="h-4 w-4" />
+                        {post.images.length} imagen{post.images.length !== 1 ? 'es' : ''}
+                      </span>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -302,6 +503,14 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Image Modal */}
+      <ImageModal
+        images={selectedPostImages}
+        initialIndex={selectedImageIndex}
+        isOpen={imageModalOpen}
+        onClose={() => setImageModalOpen(false)}
+      />
     </DashboardLayout>
   );
 };
