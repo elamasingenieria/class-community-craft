@@ -41,9 +41,10 @@ export const PostCard = ({ post, comments, onCommentAdded }: PostCardProps) => {
   const getCategoryColor = (category: string) => {
     const colors = {
       general: 'bg-muted text-muted-foreground',
-      programming: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      design: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      questions: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      achievement: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+      question: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+      programming: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+      design: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
       announcements: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     };
     return colors[category as keyof typeof colors] || colors.general;

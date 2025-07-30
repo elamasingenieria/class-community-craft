@@ -11,10 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Settings, Plus, Edit, Trash2, BookOpen, Users, Shield } from 'lucide-react';
+import { Settings, Plus, Edit, Trash2, BookOpen, Users, Shield, Database } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ContentEditor } from '@/components/Admin/ContentEditor/ContentEditor';
 import { WebhookDiagnostics } from '@/components/VirtualTutor/WebhookDiagnostics';
+import FileUploadToRAG from '@/components/Admin/FileUploadToRAG';
 
 interface Module {
   id: string;
@@ -322,7 +323,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="content-editor" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="content-editor" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
               Editor Visual
@@ -338,6 +339,10 @@ const Admin = () => {
             <TabsTrigger value="webhooks" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
               Diagnóstico Webhooks
+            </TabsTrigger>
+            <TabsTrigger value="rag" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Base de Conocimiento
             </TabsTrigger>
           </TabsList>
 
@@ -609,6 +614,10 @@ const Admin = () => {
                 <WebhookDiagnostics />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="rag" className="space-y-6">
+            <FileUploadToRAG />
           </TabsContent>
         </Tabs>
       </div>

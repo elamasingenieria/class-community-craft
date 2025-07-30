@@ -34,15 +34,26 @@ export const ForumContent = () => {
 
   const fetchPosts = async () => {
     try {
+      console.log('🔄 Iniciando fetchPosts...');
+      
       const { data, error } = await supabase
         .from('forum_posts')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error al obtener posts:', error);
+        throw error;
+      }
+      
+      console.log('✅ Posts obtenidos:', data?.length || 0, 'publicaciones');
+      if (data && data.length > 0) {
+        console.log('📋 Primer post:', data[0]);
+      }
+      
       setPosts(data || []);
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('❌ Error en fetchPosts:', error);
     }
   };
 
@@ -61,8 +72,10 @@ export const ForumContent = () => {
   };
 
   const fetchData = async () => {
+    console.log('🚀 Iniciando fetchData...');
     setIsLoading(true);
     await Promise.all([fetchPosts(), fetchComments()]);
+    console.log('✅ fetchData completado');
     setIsLoading(false);
   };
 
@@ -75,6 +88,14 @@ export const ForumContent = () => {
                          post.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || post.category === categoryFilter;
     return matchesSearch && matchesCategory;
+  });
+
+  console.log('📊 Estado actual:', {
+    postsCount: posts.length,
+    filteredCount: filteredPosts.length,
+    searchTerm,
+    categoryFilter,
+    isLoading
   });
 
   const getCommentsForPost = (postId: string) => {
@@ -110,9 +131,10 @@ export const ForumContent = () => {
           <SelectContent>
             <SelectItem value="all">Todas las categorías</SelectItem>
             <SelectItem value="general">General</SelectItem>
+            <SelectItem value="achievement">Logro</SelectItem>
+            <SelectItem value="question">Pregunta</SelectItem>
             <SelectItem value="programming">Programación</SelectItem>
             <SelectItem value="design">Diseño</SelectItem>
-            <SelectItem value="questions">Preguntas</SelectItem>
             <SelectItem value="announcements">Anuncios</SelectItem>
           </SelectContent>
         </Select>

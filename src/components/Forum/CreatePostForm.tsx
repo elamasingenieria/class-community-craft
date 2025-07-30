@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { ImageIcon, X } from 'lucide-react';
+import { ImageIcon, X, AlertCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface CreatePostFormProps {
@@ -23,11 +23,23 @@ export const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Solo se permiten archivos de imagen",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Validar tamaño (5MB)
+      if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "Error",
           description: "La imagen no puede ser mayor a 5MB",
@@ -52,68 +64,125 @@ export const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
 
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
+      console.log('🖼️ Iniciando subida de imagen:', file.name, file.size, file.type);
+      
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `forum-images/${fileName}`;
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `${user?.id}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      console.log('📁 Ruta del archivo:', filePath);
+
+      const { data, error: uploadError } = await supabase.storage
         .from('forum-images')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('❌ Error al subir imagen:', uploadError);
+        throw uploadError;
+      }
 
-      const { data } = supabase.storage
+      console.log('✅ Imagen subida exitosamente:', data);
+
+      const { data: urlData } = supabase.storage
         .from('forum-images')
         .getPublicUrl(filePath);
 
-      return data.publicUrl;
+      console.log('🔗 URL pública generada:', urlData.publicUrl);
+      return urlData.publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('❌ Error en uploadImage:', error);
       return null;
     }
+  };
+
+  const validateForm = (): boolean => {
+    if (!user) {
+      setError('Debes estar autenticado para crear una publicación');
+      return false;
+    }
+
+    if (!title.trim()) {
+      setError('El título es requerido');
+      return false;
+    }
+
+    if (!content.trim()) {
+      setError('El contenido es requerido');
+      return false;
+    }
+
+    if (title.trim().length < 3) {
+      setError('El título debe tener al menos 3 caracteres');
+      return false;
+    }
+
+    if (content.trim().length < 10) {
+      setError('El contenido debe tener al menos 10 caracteres');
+      return false;
+    }
+
+    setError(null);
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user || !title.trim() || !content.trim()) {
-      toast({
-        title: "Error",
-        description: "Título y contenido son requeridos",
-        variant: "destructive"
-      });
+    console.log('🚀 Iniciando creación de publicación...');
+    console.log('👤 Usuario:', user?.email);
+    console.log('📝 Título:', title);
+    console.log('📄 Contenido:', content.substring(0, 50) + '...');
+    console.log('🏷️ Categoría:', category);
+    console.log('🖼️ Imagen:', imageFile ? 'Sí' : 'No');
+
+    if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
+    setError(null);
 
     try {
       let imageUrl = null;
       
       if (imageFile) {
+        console.log('📤 Subiendo imagen...');
         imageUrl = await uploadImage(imageFile);
         if (!imageUrl) {
-          toast({
-            title: "Error",
-            description: "No se pudo subir la imagen",
-            variant: "destructive"
-          });
+          setError('No se pudo subir la imagen. Verifica tu conexión e intenta de nuevo.');
           setIsSubmitting(false);
           return;
         }
+        console.log('✅ Imagen subida:', imageUrl);
       }
 
-      const { error } = await supabase
-        .from('forum_posts')
-        .insert({
-          title: title.trim(),
-          content: content.trim(),
-          category,
-          user_id: user.id,
-          image_url: imageUrl,
-        });
+      console.log('💾 Creando publicación en la base de datos...');
+      
+      const postData = {
+        title: title.trim(),
+        content: content.trim(),
+        category,
+        user_id: user.id,
+        image_url: imageUrl,
+      };
 
-      if (error) throw error;
+      console.log('📊 Datos del post:', postData);
+
+      const { data, error } = await supabase
+        .from('forum_posts')
+        .insert(postData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ Error al crear post:', error);
+        throw error;
+      }
+
+      console.log('✅ Post creado exitosamente:', data);
 
       toast({
         title: "¡Publicación creada!",
@@ -126,13 +195,26 @@ export const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
       setCategory('general');
       setImageFile(null);
       setImagePreview(null);
+      setError(null);
       
       onPostCreated();
-    } catch (error) {
-      console.error('Error creating post:', error);
+    } catch (error: any) {
+      console.error('❌ Error en handleSubmit:', error);
+      
+      let errorMessage = 'No se pudo crear la publicación';
+      
+      if (error?.code === '23505') {
+        errorMessage = 'Ya existe una publicación con este título';
+      } else if (error?.code === '42501') {
+        errorMessage = 'No tienes permisos para crear publicaciones';
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      setError(errorMessage);
       toast({
         title: "Error",
-        description: "No se pudo crear la publicación",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -146,15 +228,24 @@ export const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
         <CardTitle>Crear nueva publicación</CardTitle>
       </CardHeader>
       <CardContent>
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 text-red-500" />
+            <span className="text-red-700 text-sm">{error}</span>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="title">Título *</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Escribe el título de tu publicación"
               required
+              minLength={3}
+              maxLength={200}
             />
           </div>
 
@@ -166,16 +257,17 @@ export const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="general">General</SelectItem>
+                <SelectItem value="achievement">Logro</SelectItem>
+                <SelectItem value="question">Pregunta</SelectItem>
                 <SelectItem value="programming">Programación</SelectItem>
                 <SelectItem value="design">Diseño</SelectItem>
-                <SelectItem value="questions">Preguntas</SelectItem>
                 <SelectItem value="announcements">Anuncios</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label htmlFor="content">Contenido</Label>
+            <Label htmlFor="content">Contenido *</Label>
             <Textarea
               id="content"
               value={content}
@@ -183,7 +275,12 @@ export const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
               placeholder="Escribe el contenido de tu publicación"
               rows={4}
               required
+              minLength={10}
+              maxLength={5000}
             />
+            <div className="text-xs text-muted-foreground mt-1">
+              {content.length}/5000 caracteres
+            </div>
           </div>
 
           <div>
@@ -222,7 +319,7 @@ export const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
                       Haz clic para agregar una imagen
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      Máximo 5MB
+                      Máximo 5MB (JPEG, PNG, GIF, WebP)
                     </span>
                   </label>
                 </div>
@@ -230,8 +327,19 @@ export const CreatePostForm = ({ onPostCreated }: CreatePostFormProps) => {
             </div>
           </div>
 
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? 'Creando...' : 'Crear Publicación'}
+          <Button 
+            type="submit" 
+            disabled={isSubmitting} 
+            className="w-full"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Creando...
+              </>
+            ) : (
+              'Crear Publicación'
+            )}
           </Button>
         </form>
       </CardContent>
