@@ -9,8 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { MessageSquare, Heart, Trophy, Plus, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MessageSquare, Heart, Trophy, Plus, Upload, X, Image as ImageIcon, Calendar } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { ImageModal } from '@/components/Forum/ImageModal';
 
@@ -41,6 +41,8 @@ const Dashboard = () => {
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [likesCountByPost, setLikesCountByPost] = useState<Record<string, number>>({});
+  const [likedByUser, setLikedByUser] = useState<Record<string, boolean>>({});
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -71,7 +73,7 @@ const Dashboard = () => {
         
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
-          .select('id, full_name, points')
+          .select('id, full_name, points, avatar_url')
           .in('id', userIds);
 
         if (profilesError) throw profilesError;
@@ -98,6 +100,30 @@ const Dashboard = () => {
         }));
 
         setPosts(enrichedPosts);
+
+        // Fetch likes for these posts
+        const postIds = enrichedPosts.map(p => p.id);
+        if (postIds.length > 0) {
+          const sb: any = supabase as any;
+          const { data: likesRows, error: likesError } = await sb
+            .from('forum_post_likes')
+            .select('post_id, user_id')
+            .in('post_id', postIds);
+          if (likesError) throw likesError;
+          const counts: Record<string, number> = {};
+          const liked: Record<string, boolean> = {};
+          for (const row of likesRows || []) {
+            counts[row.post_id] = (counts[row.post_id] || 0) + 1;
+            if (user && row.user_id === user.id) {
+              liked[row.post_id] = true;
+            }
+          }
+          setLikesCountByPost(counts);
+          setLikedByUser(liked);
+        } else {
+          setLikesCountByPost({});
+          setLikedByUser({});
+        }
       }
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -108,6 +134,35 @@ const Dashboard = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleLike = async (postId: string) => {
+    if (!user) {
+      toast({ title: 'Inicia sesión', description: 'Debes iniciar sesión para dar like', variant: 'destructive' });
+      return;
+    }
+    const sb: any = supabase as any;
+    try {
+      if (likedByUser[postId]) {
+        const { error } = await sb
+          .from('forum_post_likes')
+          .delete()
+          .eq('post_id', postId)
+          .eq('user_id', user.id);
+        if (error) throw error;
+        setLikedByUser(prev => ({ ...prev, [postId]: false }));
+        setLikesCountByPost(prev => ({ ...prev, [postId]: Math.max(0, (prev[postId] || 1) - 1) }));
+      } else {
+        const { error } = await sb
+          .from('forum_post_likes')
+          .insert({ post_id: postId, user_id: user.id });
+        if (error) throw error;
+        setLikedByUser(prev => ({ ...prev, [postId]: true }));
+        setLikesCountByPost(prev => ({ ...prev, [postId]: (prev[postId] || 0) + 1 }));
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: 'No se pudo actualizar el like', variant: 'destructive' });
     }
   };
 
@@ -425,11 +480,29 @@ const Dashboard = () => {
             </Card>
           ) : (
             posts.map((post) => (
-              <Card key={post.id} className="hover:shadow-lg transition-shadow duration-200">
+              <Card key={post.id} className="hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+                {/* Cover image */}
+                {post.images && post.images.length > 0 && (
+                  <div className="relative h-56 w-full overflow-hidden">
+                    <img
+                      src={post.images[0].url}
+                      alt={post.images[0].file_name}
+                      className="h-full w-full object-cover"
+                    />
+                    <div className="absolute top-3 right-3">
+                      <Badge className="bg-black/60 text-white">
+                        {post.category === 'achievement' ? 'Logro' : post.category === 'question' ? 'Pregunta' : 'General'}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
-                      <Avatar>
+                        <Avatar>
+                          {profilesMap.get(post.user_id)?.avatar_url && (
+                            <AvatarImage src={profilesMap.get(post.user_id)?.avatar_url as string} alt={post.author_name || 'Avatar'} />
+                          )}
                         <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
                           {post.author_name?.charAt(0) || 'U'}
                         </AvatarFallback>
@@ -438,22 +511,22 @@ const Dashboard = () => {
                         <p className="font-semibold text-foreground">
                           {post.author_name || 'Usuario'}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(post.created_at).toLocaleDateString('es-ES', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(post.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </p>
                       </div>
                     </div>
-                    <Badge className={getCategoryColor(post.category)}>
-                      <span className="flex items-center gap-1">
-                        {getCategoryIcon(post.category)}
-                        {post.category === 'achievement' ? 'Logro' : 
-                         post.category === 'question' ? 'Pregunta' : 'General'}
-                      </span>
-                    </Badge>
+                    <Button
+                      variant={likedByUser[post.id] ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => toggleLike(post.id)}
+                      className={`flex items-center gap-2 ${likedByUser[post.id] ? 'bg-red-500 hover:bg-red-600 text-white' : ''}`}
+                      aria-pressed={likedByUser[post.id] || false}
+                    >
+                      <Heart className={`h-4 w-4 ${likedByUser[post.id] ? 'fill-current' : ''}`} />
+                      <span>{likesCountByPost[post.id] || 0}</span>
+                    </Button>
                   </div>
                   <CardTitle className="text-xl">{post.title}</CardTitle>
                 </CardHeader>
@@ -496,6 +569,53 @@ const Dashboard = () => {
                         {post.images.length} imagen{post.images.length !== 1 ? 'es' : ''}
                       </span>
                     )}
+                  </div>
+
+                  {/* Comment box */}
+                  <div className="mt-4 flex gap-2">
+                    <Textarea
+                      placeholder={user ? 'Escribe un comentario...' : 'Inicia sesión para comentar'}
+                      rows={2}
+                      className="flex-1"
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                          const value = (e.target as HTMLTextAreaElement).value.trim();
+                          if (!value || !user) return;
+                          const { error } = await supabase
+                            .from('forum_comments')
+                            .insert({ content: value, post_id: post.id, user_id: user.id });
+                          if (error) {
+                            toast({ title: 'Error', description: 'No se pudo agregar el comentario', variant: 'destructive' });
+                          } else {
+                            (e.target as HTMLTextAreaElement).value = '';
+                            // actualizar contador local
+                            setPosts(prev => prev.map(p => p.id === post.id ? { ...p, comment_count: p.comment_count + 1 } : p));
+                            toast({ title: 'Comentario publicado', description: 'Tu comentario se agregó correctamente.' });
+                          }
+                        }
+                      }}
+                      disabled={!user}
+                    />
+                    <Button
+                      onClick={async () => {
+                        const textarea = document.activeElement as HTMLTextAreaElement;
+                        const value = textarea?.value?.trim();
+                        if (!value || !user) return;
+                        const { error } = await supabase
+                          .from('forum_comments')
+                          .insert({ content: value, post_id: post.id, user_id: user.id });
+                        if (error) {
+                          toast({ title: 'Error', description: 'No se pudo agregar el comentario', variant: 'destructive' });
+                        } else {
+                          if (textarea) textarea.value = '';
+                          setPosts(prev => prev.map(p => p.id === post.id ? { ...p, comment_count: p.comment_count + 1 } : p));
+                          toast({ title: 'Comentario publicado', description: 'Tu comentario se agregó correctamente.' });
+                        }
+                      }}
+                      disabled={!user}
+                    >
+                      Comentar
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

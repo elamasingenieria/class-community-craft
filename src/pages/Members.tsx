@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/Layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Users, Trophy, MessageSquare, BookOpen } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -12,6 +12,7 @@ interface Member {
   id: string;
   full_name: string | null;
   email: string | null;
+  avatar_url: string | null;
   points: number;
   role: string;
   created_at: string;
@@ -74,6 +75,7 @@ const Members = () => {
           id: profile.id,
           full_name: profile.full_name,
           email: profile.email,
+          avatar_url: profile.avatar_url,
           points: profile.points || 0,
           role: profile.role || 'student',
           created_at: profile.created_at || '',
@@ -221,6 +223,9 @@ const Members = () => {
                           #{index + 1}
                         </div>
                         <Avatar className="h-12 w-12">
+                          {member.avatar_url && (
+                            <AvatarImage src={member.avatar_url} alt={member.full_name || 'Avatar'} />
+                          )}
                           <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-lg">
                             {member.full_name?.charAt(0) || member.email?.charAt(0) || 'U'}
                           </AvatarFallback>

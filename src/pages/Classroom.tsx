@@ -196,7 +196,7 @@ const Classroom = () => {
           <h1 className="text-3xl font-bold text-foreground mb-4">Mi Curso</h1>
           
           {/* Progress Overview */}
-          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-l-blue-500">
+          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-l-4 border-l-blue-500 dark:border-l-blue-400">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -208,7 +208,7 @@ const Classroom = () => {
                     {Math.round(progress)}% completado
                   </CardDescription>
                 </div>
-                <Badge variant="secondary" className="text-lg px-4 py-2">
+                 <Badge variant="secondary" className="text-lg px-4 py-2 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100">
                   {modules.reduce((total, module) => 
                     total + module.topics.reduce((topicTotal, topic) => 
                       topicTotal + topic.lessons.filter(lesson => completedLessons.has(lesson.id)).length, 0
@@ -274,13 +274,13 @@ const Classroom = () => {
                   <Accordion type="single" collapsible className="w-full">
                     {module.topics.map((topic, topicIndex) => (
                       <AccordionItem key={topic.id} value={topic.id}>
-                        <AccordionTrigger className="px-6 py-4 hover:bg-gray-50">
+                         <AccordionTrigger className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800">
                           <div className="flex items-center gap-3">
-                            <div className="bg-gray-200 text-gray-700 rounded w-6 h-6 flex items-center justify-center text-xs font-semibold">
+                            <div className="bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100 rounded w-6 h-6 flex items-center justify-center text-xs font-semibold">
                               {topicIndex + 1}
                             </div>
                             <span className="text-left">{topic.title}</span>
-                            <Badge variant="outline" className="ml-auto">
+                           <Badge variant="outline" className="ml-auto dark:border-gray-700 dark:text-gray-200">
                               {topic.lessons.filter(lesson => completedLessons.has(lesson.id)).length} / {topic.lessons.length}
                             </Badge>
                           </div>
@@ -299,15 +299,15 @@ const Classroom = () => {
                                   key={lesson.id} 
                                   className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
                                     isCompleted 
-                                      ? 'bg-green-50 border-green-200' 
-                                      : 'bg-white border-gray-200 hover:bg-gray-50'
+                                      ? 'bg-green-50 border-green-200 dark:bg-green-900/30 dark:border-green-800' 
+                                      : 'bg-white border-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:border-gray-800 dark:hover:bg-gray-800'
                                   }`}
                                 >
                                   <div className="flex items-center gap-3 flex-1">
                                     <div className={`rounded-full w-8 h-8 flex items-center justify-center text-xs font-semibold ${
                                       isCompleted 
                                         ? 'bg-green-500 text-white' 
-                                        : 'bg-gray-200 text-gray-700'
+                                        : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100'
                                     }`}>
                                       {isCompleted ? (
                                         <CheckCircle className="h-4 w-4" />

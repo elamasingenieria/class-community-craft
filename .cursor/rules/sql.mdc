@@ -1,0 +1,5 @@
+---
+description: ALWAYS when a change in the code has to be implemented alongside a change in the database, provide the SQL code that has to be pasted in the SQL editor. Otherwise, there's gonna be a mismatching between the front and back end. Consider that i commonly use supabase cloud for backend. 
+globs: 
+alwaysApply: true
+---

@@ -10,17 +10,20 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, User, Moon, Sun, Monitor } from 'lucide-react';
+import { Settings, User, Moon, Sun, Monitor, Upload, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const UserSettings = () => {
   const { user, updatePassword } = useAuth();
-  const { profile } = useRole();
+  const { profile, refetchProfile } = useRole();
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [avatarInputEl, setAvatarInputEl] = useState<HTMLInputElement | null>(null);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +66,61 @@ export const UserSettings = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Archivo no válido', description: 'Selecciona una imagen', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Archivo demasiado grande', description: 'Máximo 5MB', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const fileName = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('user-avatars')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+
+      const { data: urlData } = supabase.storage.from('user-avatars').getPublicUrl(fileName);
+      const publicUrl = urlData.publicUrl;
+
+      const { error: profErr } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+      if (profErr) throw profErr;
+
+      await refetchProfile();
+      toast({ title: 'Avatar actualizado', description: 'Tu foto de perfil se actualizó correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err?.message || 'No se pudo actualizar el avatar', variant: 'destructive' });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+      if (error) throw error;
+      await refetchProfile();
+      toast({ title: 'Avatar eliminado', description: 'Se quitó tu foto de perfil.' });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err?.message || 'No se pudo eliminar el avatar', variant: 'destructive' });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -94,6 +152,30 @@ export const UserSettings = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Avatar */}
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full overflow-hidden bg-muted border">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">Sin foto</div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input id="avatar-input" ref={setAvatarInputEl} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                    <Button size="sm" disabled={isUploadingAvatar} onClick={() => avatarInputEl?.click()}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      {isUploadingAvatar ? 'Subiendo...' : 'Cambiar foto'}
+                    </Button>
+                    {profile?.avatar_url && (
+                      <Button variant="outline" size="sm" onClick={handleAvatarRemove}>
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Quitar
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Nombre completo</Label>
